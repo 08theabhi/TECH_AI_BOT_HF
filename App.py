@@ -1,23 +1,40 @@
 import streamlit as st
-from transformers import pipeline
-@st.cache_resource
-def load_summarizer():
-  return pipeline("summarization", model="facebook/bart-large-cnn")
-summarizer = load_summarizer()
-st.title(" AI text Summarizer")
+import requests
+
+API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+HEADERS = {"Authorization": "Bearer hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
+
+def summarize(text, max_length, min_length):
+    payload = {
+        "inputs": text,
+        "parameters": {
+            "max_length": max_length,
+            "min_length": min_length,
+            "do_sample": False
+        }
+    }
+    response = requests.post(API_URL, headers=HEADERS, json=payload)
+    result = response.json()
+
+    if isinstance(result, list) and 'summary_text' in result[0]:
+        return result[0]['summary_text']
+    elif isinstance(result, dict) and 'error' in result:
+        return f"API Error: {result['error']}"
+    else:
+        return "Unexpected response. Please try again."
+
+st.title("🤖 AI Text Summarizer")
 st.write("Enter a long text below, and get a concise summary!")
-long_text = st.text_area("Enter text to summarizer:",height=200)
-max_length = st.slider("Max Summary Length",min_value=50,max_value=300,value=130)
-min_length = st.slider("Min Summary Length", min_value=20,max_valse=100,value=30)
+
+long_text = st.text_area("Enter text to summarize:", height=200)
+max_length = st.slider("Max Summary Length", min_value=50, max_value=300, value=130)
+min_length = st.slider("Min Summary Length", min_value=10, max_value=50, value=30)
+
 if st.button("Summarize"):
-   if long_text.strip():
-      with st.spinner("Generating summary... "):
-         summary = summarizer(long_text,
-                              max_length=max_length,
-                              min_length=min_length, 
-                              do_sample=False
-                             )
-         st.subheader(" Summary:")
-         st.success(summary[0]['summary_text'])
-   else:
-         st.warning(" Please enter some text to summarize.")
+    if long_text.strip():
+        with st.spinner("Generating summary..."):
+            result = summarize(long_text, max_length, min_length)
+        st.subheader("Summary:")
+        st.success(result)
+    else:
+        st.warning("⚠️ Please enter some text to summarize.")
