@@ -19,5 +19,5 @@ if st.button("Summarize"):
                             )
       st.subheader(" Summary:")
       st.success(summary[0]['summary_text'])
-  else:
+   else:
       st.warning(" Please enter some text to summarize.")
