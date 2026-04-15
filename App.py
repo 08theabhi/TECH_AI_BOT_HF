@@ -6,7 +6,7 @@ client = Groq(api_key="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"
 def summarize(text, max_length, min_length):
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+         model="llama-3.3-70b-versatile",
             messages=[
                 {
                     "role": "system",
