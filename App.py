@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
-HEADERS = {"Authorization": "Bearer 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"}
+HEADERS = {"Authorization": "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"}
 
 def summarize(text, max_length, min_length):
     payload = {
